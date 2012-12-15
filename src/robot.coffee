@@ -11,7 +11,7 @@ Response                                                = require './response'
 
 inspect = require('util').inspect
 
-HUBOT_DEFAULT_ADAPTERS = [ 'campfire', 'shell' ]
+HUBOT_DEFAULT_ADAPTERS = [ 'campfire', 'shell', 'blackboard' ]
 HUBOT_DOCUMENTATION_SECTIONS = [ 'description', 'dependencies', 'configuration', 'commands', 'notes', 'author', 'examples', 'urls' ]
 
 
