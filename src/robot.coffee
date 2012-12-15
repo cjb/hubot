@@ -303,6 +303,9 @@ class Robot
   send: (user, strings...) ->
     @adapter.send user, strings...
 
+  ddp_call: (method, args) ->
+    @adapter.ddp_call method, args
+
   # Public: A helper send function to message a room that the robot is in.
   #
   # room    - String designating the room to message.

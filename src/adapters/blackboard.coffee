@@ -45,5 +45,9 @@ class Blackboardbot extends Adapter
     console.log "in reply"
     @send user, strings
 
+  ddp_call: (method, args) ->
+    self = @
+    self.ddpclient.call method, args
+
 exports.use = (robot) ->
   new Blackboardbot robot
