@@ -17,6 +17,9 @@ class Response
   send: (strings...) ->
     @robot.adapter.send @message.user, strings...
 
+  priv: (strings...) ->
+    @robot.adapter.priv @message.user, strings...
+
   # Public: Posts a topic changing message
   #
   # strings - One or more strings to set as the topic of the
