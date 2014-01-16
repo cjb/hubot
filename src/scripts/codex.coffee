@@ -3,6 +3,7 @@
 #
 # Commands:
 #   hubot bot: The answer to <puzzle> is <answer>
+#   hubot bot: Call in <answer> for puzzle>
 #   hubot bot: Delete the answer to <puzzle>
 #   hubot bot: <puzzle> is a new puzzle in round <round>
 #   hubot bot: Delete puzzle <puzzle>
@@ -51,6 +52,32 @@ module.exports = (robot) ->
             robot.ddpclient.call "newMessage", [
               nick: "codexbot",
               body: solution_banter[Math.floor(Math.random()*solution_banter.length)]
+            ]
+
+  # newCallIn
+  robot.respond /bot: Call in (.*?) for (.*)$/i, (msg) ->
+    answer = msg.match[1]
+    name = msg.match[2]
+    robot.ddpclient.call "getByName", [
+      name: name
+      optional_type: "puzzles"
+    ], (err, puzzle) ->
+      if err or not puzzle
+        console.log err, puzzle
+        return
+      else
+        robot.ddpclient.call "newCallIn", [
+          puzzle: puzzle.object._id
+          answer: answer
+          who: "codexbot"
+          name: name + answer
+        ], (err, res) ->
+          if err or not res
+            console.log err, res
+          else
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "Okay, #{answer} for #{puzzle.object.name} added to call-in list!"
             ]
 
 # deleteAnswer
