@@ -2,7 +2,7 @@ Robot                                   = require '../robot'
 Adapter                                 = require '../adapter'
 {TextMessage,EnterMessage,LeaveMessage} = require '../message'
 
-DDPClient = require("/srv/node-ddp-client/lib/ddp-client")
+DDPClient = require("/home/codex/node-ddp-client/lib/ddp-client")
 
 class Blackboardbot extends Adapter
   run: ->
@@ -27,7 +27,11 @@ class Blackboardbot extends Adapter
 
     update_cb = (data) ->
       if @ready
+        console.log "in update_cb"
+        if data.set and data.set.nick and data.set.body
+          console.log "incoming: #{data.set.nick}, #{data.set.body}"
         if data.set and data.set.nick isnt "codexbot" and data.set.system is false and data.set.nick isnt ""
+          console.log "incoming2: #{data.set.nick}, #{data.set.body}"
           self.receive new TextMessage data.set.nick, data.set.body
 
     # Connect to Meteor
@@ -35,11 +39,12 @@ class Blackboardbot extends Adapter
     @robot.ddpclient = self.ddpclient
     self.ddpclient.connect ->
       console.log "connected!"
-      self.ddpclient.subscribe "recent-messages", ["codexbot", "general/0"], initial_cb, update_cb, "messages"
+      self.ddpclient.subscribe "last-pages", ["codexbot", "general/0"], initial_cb, update_cb, "pages"
       @interval = setInterval(keepalive, 30000)
 
   send: (user, strings...) ->
     self = @
+    console.log "#{user}: #{strings}"
     self.ddpclient.call "newMessage", [
       nick: "codexbot"
       body: "#{user}: #{strings}"
@@ -47,6 +52,7 @@ class Blackboardbot extends Adapter
 
   priv: (user, strings...) ->
     self = @
+    console.log "priv: #{user}: #{strings}"
     self.ddpclient.call "newMessage", [
       nick: "codexbot"
       to: "#{user}"

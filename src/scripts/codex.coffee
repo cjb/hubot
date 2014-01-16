@@ -2,14 +2,14 @@
 #   Utility commands for Codexbot
 #
 # Commands:
-#   hubot: bot: The answer to <puzzle> is <answer>
-#   hubot: bot: Delete the answer to <puzzle>
-#   hubot: bot: <puzzle> is a new puzzle in round <round>
-#   hubot: bot: Delete puzzle <puzzle>
-#   hubot: bot: <round> is a new round in group <group>
-#   hubot: bot: Delete round <name>
-#   hubot: bot: <roundgroup> is a new round group
-#   hubot: bot: Delete round group <roundgroup>
+#   hubot bot: The answer to <puzzle> is <answer>
+#   hubot bot: Delete the answer to <puzzle>
+#   hubot bot: <puzzle> is a new puzzle in round <round>
+#   hubot bot: Delete puzzle <puzzle>
+#   hubot bot: <round> is a new round in group <group>
+#   hubot bot: Delete round <name>
+#   hubot bot: <roundgroup> is a new round group
+#   hubot bot: Delete round group <roundgroup>
 
 module.exports = (robot) ->
 
@@ -22,7 +22,10 @@ module.exports = (robot) ->
       optional_type: "puzzles"
     ], (err, puzzle) ->
       if err or not puzzle
-        console.log err, puzzle
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a puzzle called #{msg.match[1]}."
+        ]
         return
       else
         robot.ddpclient.call "setAnswer", [
@@ -32,6 +35,23 @@ module.exports = (robot) ->
         ], (err, res) ->
           if err or not res
             console.log err, res
+          else
+            puzzle = msg.match[1]
+            answer = msg.match[2]
+            solution_banter = ["Huzzah!",
+                               "Yay!",
+                               "Pterrific!",
+                               "Who'd have thought?",
+                               "#{answer}?  Really?  Whoa.",
+                               "Rock on!",
+                               "#{puzzle} bites the dust!",
+                               "#{puzzle}, meet #{answer}.  We rock!",
+                              ]
+            
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: solution_banter[Math.floor(Math.random()*solution_banter.length)]
+            ]
 
 # deleteAnswer
   robot.respond /bot: Delete the answer to (.*)$/i, (msg) ->
@@ -40,7 +60,10 @@ module.exports = (robot) ->
       optional_type: "puzzles"
     ], (err, puzzle) ->
       if err or not puzzle
-        console.log err, puzzle
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a puzzle called #{msg.match[1]}."
+        ]
         return
       else
         robot.ddpclient.call "deleteAnswer", [
@@ -49,6 +72,11 @@ module.exports = (robot) ->
         ], (err, res) ->
           if err or not res
             console.log err, res
+          else
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "Okay, I deleted the answer to #{msg.match[1]}."
+            ]
 
 ## PUZZLES
 
@@ -59,7 +87,10 @@ module.exports = (robot) ->
       optional_type: "rounds"
     ], (err, round) ->
       if err or not round
-        console.log err, round
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a round called #{msg.match[2]}."
+        ]
         return
       else
         robot.ddpclient.call "newPuzzle", [
@@ -67,7 +98,10 @@ module.exports = (robot) ->
           who: "codexbot"
         ], (err, puzzle) ->
           if err or not puzzle
-            console.log err, puzzle
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "I can't find a round called #{msg.match[2]}."
+            ]   
             return
           else
             robot.ddpclient.call "addPuzzleToRound", [
@@ -77,6 +111,11 @@ module.exports = (robot) ->
             ], (err, res) ->
               if err or not res
                 console.log err, res
+              else
+                robot.ddpclient.call "newMessage", [
+                  nick: "codexbot",
+                  body: "Okay, I added #{msg.match[1]} to #{msg.match[2]}."
+                ]
 
 # deletePuzzle
   robot.respond /bot: Delete puzzle (.*)$/i, (msg) ->
@@ -85,7 +124,10 @@ module.exports = (robot) ->
       optional_type: "puzzles"
     ], (err, puzzle) ->
       if err or not puzzle
-        console.log err, puzzle
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a puzzle called #{msg.match[1]}."
+        ]
         return
       else
         robot.ddpclient.call "deletePuzzle", [
@@ -94,6 +136,11 @@ module.exports = (robot) ->
         ], (err, res) ->
           if err or not res
             console.log err, res
+          else
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "Okay, I deleted #{msg.match[1]}."
+            ]
 
 ## ROUNDS
 
@@ -104,7 +151,10 @@ module.exports = (robot) ->
       optional_type: "roundgroups"
     ], (err, rg) ->
       if err or not rg
-        console.log err, rg
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a round group called #{msg.match[2]}"
+        ]
         return
       else
         robot.ddpclient.call "newRound", [
@@ -122,6 +172,11 @@ module.exports = (robot) ->
             ], (err, res) ->
               if err or not res
                 console.log err, res
+              else
+                robot.ddpclient.call "newMessage", [
+                  nick: "codexbot",
+                  body: "Okay, I created round #{msg.match[1]} in #{msg.match[2]}."
+                ]
 
 # deleteRound
   robot.respond /bot: Delete round (.*)$/i, (msg) ->
@@ -130,7 +185,10 @@ module.exports = (robot) ->
       optional_type: "rounds"
     ], (err, round) ->
       if err or not round
-        console.log err, round
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a round called #{msg.match[1]}."
+        ]
         return
       else
         robot.ddpclient.call "deleteRound", [
@@ -139,6 +197,11 @@ module.exports = (robot) ->
         ], (err, res) ->
           if err or not res
             console.log err, res
+          else
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "Okay, I deleted round #{msg.match[1]}."
+            ]
 
 ## ROUND GROUPS
 
@@ -150,6 +213,11 @@ module.exports = (robot) ->
     ], (err, rg) ->
       if err or not rg
         console.log err, rg
+      else
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "Okay, I created round group #{msg.match[1]}."
+        ]
 
 # deleteRoundGroup
   robot.respond /bot: Delete round group (.*)$/i, (msg) ->
@@ -158,7 +226,10 @@ module.exports = (robot) ->
       optional_type: "roundgroups"
     ], (err, rg) ->
       if err or not rg
-        console.log err, rg
+        robot.ddpclient.call "newMessage", [
+          nick: "codexbot",
+          body: "I can't find a round group called #{msg.match[1]}"
+        ]
         return
       else
         robot.ddpclient.call "deleteRoundGroup", [
@@ -167,3 +238,8 @@ module.exports = (robot) ->
         ], (err, res) ->
           if err or not res
             console.log err, res
+          else
+            robot.ddpclient.call "newMessage", [
+              nick: "codexbot",
+              body: "Okay, I deleted round group #{msg.match[1]}."
+            ]

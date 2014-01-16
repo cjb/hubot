@@ -15,6 +15,7 @@ class Response
   #
   # Returns nothing.
   send: (strings...) ->
+    console.log "in send"
     @robot.adapter.send @message.user, strings...
 
   priv: (strings...) ->
@@ -36,6 +37,7 @@ class Response
   #
   # Returns nothing.
   reply: (strings...) ->
+    console.log "in reply"
     @robot.adapter.reply @message.user, strings...
 
   # Public: Picks a random item from the given items.
