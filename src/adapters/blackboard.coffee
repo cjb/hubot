@@ -9,6 +9,7 @@ class Blackboardbot extends Adapter
     self = @
     @robot.name = ""
     @ready = false
+    @subscription = false
 
     keepalive = ->
       self.ddpclient.call "setPresence", [
@@ -21,25 +22,27 @@ class Blackboardbot extends Adapter
     initial_cb = ->
       @ready = true
       self.ddpclient.call "deleteNick", ["name": "codexbot", "tags": {}]
-      self.ddpclient.call "newNick", ["name": "codexbot", "tags": {gravatar: "codex@printf.net"}]
+      self.ddpclient.call "newNick", ["name": "codexbot", "tags": [name: "gravatar", value: "codex@printf.net"]]
       keepalive()
       self.emit 'connected'
 
     update_cb = (data) ->
       if @ready
         console.log "in update_cb"
-        if data.set and data.set.nick and data.set.body
-          console.log "incoming: #{data.set.nick}, #{data.set.body}"
-        if data.set and data.set.nick isnt "codexbot" and data.set.system is false and data.set.nick isnt ""
-          console.log "incoming2: #{data.set.nick}, #{data.set.body}"
-          self.receive new TextMessage data.set.nick, data.set.body
+        if data.fields and data.fields.nick and data.fields.body
+          console.log "incoming: #{data.fields.nick}, #{data.fields.body}"
+        if data.fields and data.fields.nick isnt "codexbot" and data.fields.system is false and data.fields.nick isnt ""
+          console.log "incoming2: #{data.fields.nick}, #{data.fields.body}"
+          self.receive new TextMessage data.fields.nick, data.fields.body
 
     # Connect to Meteor
     self.ddpclient = new DDPClient(host: "localhost", port: 3000)
     @robot.ddpclient = self.ddpclient
     self.ddpclient.connect ->
       console.log "connected!"
-      self.ddpclient.subscribe "last-pages", ["codexbot", "general/0"], initial_cb, update_cb, "pages"
+      if not @subscription
+        self.ddpclient.subscribe "messages-in-range", ["general/0", new Date().getTime(), 0], initial_cb, update_cb, "messages"
+        @subscription = true
       @interval = setInterval(keepalive, 30000)
 
   send: (user, strings...) ->
